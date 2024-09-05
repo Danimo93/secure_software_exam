@@ -1,0 +1,16 @@
+tinyec
+pycryptodome
+cryptography
+bcrypt
+Crypto
+Fernet
+rsa
+requests
+flask
+werkzeug
+mysql-connector-python
+pymysql
+python-dotenv
+fastapi
+uvicorn
+
