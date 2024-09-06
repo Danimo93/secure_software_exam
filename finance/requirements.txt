@@ -13,4 +13,7 @@ pymysql
 python-dotenv
 fastapi
 uvicorn
-
+Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-JWT-Extended
