@@ -3,37 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - Financial App</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: linear-gradient(to bottom right, #f3f4f6, #d1d8e0); /* Financial-themed gradient */
         }
 
-        .login-container {
-            background-color: #fff;
+        .container {
+            text-align: center;
+            background-color: #ffffff;
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Softer shadow */
             max-width: 400px;
+            width: 100%;
+            border: 1px solid #d1d8e0; /* Border that matches the background */
         }
 
         h1 {
-            text-align: center;
             color: #333;
             margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
         }
 
         label {
-            font-weight: bold;
-            color: #333;
+            font-size: 1.2rem;
+            color: #555;
+            display: block;
+            margin-top: 10px;
         }
 
         input {
@@ -42,27 +47,44 @@
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 1rem;
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
+            padding: 12px;
+            background-color: #1e90ff; /* Professional blue color */
+            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 1rem;
             cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #104e8b; /* Slightly darker blue on hover */
+            transform: translateY(-2px);
+        }
+
+        .forgot-password {
+            display: block;
+            margin-top: 15px;
+            color: #1e90ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="container">
         <h1>Login</h1>
-        <form action="/login" method="POST">
+        <form action="{{ url_for('login_user_route') }}" method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
@@ -71,6 +93,8 @@
 
             <button type="submit">Login</button>
         </form>
+
+        <a class="forgot-password" href="#">Forgot Password?</a>
     </div>
 </body>
 </html>

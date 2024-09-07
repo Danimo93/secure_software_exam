@@ -7,13 +7,13 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f4f8;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: linear-gradient(to bottom right, #f3f4f6, #d1d8e0); /* Financial-themed gradient */
         }
 
         .container {
@@ -21,9 +21,10 @@
             background-color: #ffffff;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Softer shadow */
             max-width: 600px;
             width: 100%;
+            border: 1px solid #d1d8e0; /* Border that matches the background */
         }
 
         h1 {
@@ -45,7 +46,7 @@
         a {
             display: inline-block;
             text-decoration: none;
-            background-color: #007bff;
+            background-color: #1e90ff; /* Professional blue color */
             color: white;
             padding: 12px 25px;
             margin: 10px;
@@ -55,7 +56,7 @@
         }
 
         a:hover {
-            background-color: #0056b3;
+            background-color: #104e8b; /* Slightly darker blue on hover */
             transform: translateY(-2px);
         }
     </style>
@@ -63,11 +64,9 @@
 <body>
     <div class="container">
         <h1>Welcome to the Financial App</h1>
-        <p>Manage your finances securely and easily.</p>
         <div class="link-container">
             <a href="/login">Login</a>
             <a href="/register">Register</a>
-            <a href="/request-reset">Forgot Password?</a>
         </div>
     </div>
 </body>

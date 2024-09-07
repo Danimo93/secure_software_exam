@@ -17,3 +17,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Bcrypt
 Flask-JWT-Extended
+flask_mail
+flask-login
+flask-sqlalchemy
+flask-login
