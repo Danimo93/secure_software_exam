@@ -1,15 +1,16 @@
 # app/__init__.py
 
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import Flask, jsonify, request, redirect, url_for, render_template
 from app.auth_controller import register, login
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Define home route to render the updated home page
+# Define home route
 @app.route('/')
 def home():
-    return render_template('home.html')
+    # You can render a home page or redirect to login or register page
+    return render_template('home.html')  # Make sure home.html exists in the templates folder
 
 # Define routes for registration and login
 @app.route('/register', methods=['GET', 'POST'])
