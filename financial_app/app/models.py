@@ -1,70 +1,80 @@
 # app/models.py
 
 import sqlite3
-import bcrypt
-import secrets
+from datetime import datetime
 from app.db_setup import connect_db
 
 class User:
     @staticmethod
-    def create_user(username, password, role='user'):
-        salt = bcrypt.gensalt()
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
-        conn = connect_db()
-        cursor = conn.cursor()
-
+    def create_user(username, email, password_hash):
         try:
-            cursor.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-                           (username, password_hash, role))
+            conn = connect_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)", 
+                           (username, email, password_hash))
             conn.commit()
-        except sqlite3.IntegrityError:
             conn.close()
-            return False  # Username already exists
-        conn.close()
-        return True
-
-    @staticmethod
-    def verify_user(username, password):
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT password_hash FROM users WHERE username=?", (username,))
-        result = cursor.fetchone()
-        conn.close()
-
-        if result is None:
+            return True
+        except sqlite3.IntegrityError:
             return False
 
-        stored_hash = result[0]
-        if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):
-            return True
-        return False
-
     @staticmethod
-    def generate_token(username):
-        token = secrets.token_hex(16)
+    def find_by_username(username):
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET api_token=? WHERE username=?", (token, username))
-        conn.commit()
-        conn.close()
-        return token
-
-    @staticmethod
-    def verify_token(token):
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT username FROM users WHERE api_token=?", (token,))
-        result = cursor.fetchone()
-        conn.close()
-        return result is not None
-
-    @staticmethod
-    def get_user_role(token):
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT role FROM users WHERE api_token=?", (token,))
+        cursor.execute("SELECT * FROM users WHERE username=?", (username,))
         result = cursor.fetchone()
         conn.close()
         if result:
-            return result[0]
+            return User(*result)
         return None
+
+    @staticmethod
+    def find_by_email_or_username(email_or_username):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username=? OR email=?", (email_or_username, email_or_username))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return User(*result)
+        return None
+
+    @staticmethod
+    def find_by_token(token):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE api_token=?", (token,))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            return User(*result)
+        return None
+
+    def update_token(self, token):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET api_token=? WHERE id=?", (token, self.id))
+        conn.commit()
+        conn.close()
+
+    def update_reset_token(self, reset_token, expiry_time):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET reset_token=?, token_expiry=? WHERE id=?", (reset_token, expiry_time, self.id))
+        conn.commit()
+        conn.close()
+
+    def update_password(self, new_password_hash):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password_hash=? WHERE id=?", (new_password_hash, self.id))
+        conn.commit()
+        conn.close()
+
+    def clear_reset_token(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET reset_token=NULL, token_expiry=NULL WHERE id=?", (self.id,))
+        conn.commit()
+        conn.close()

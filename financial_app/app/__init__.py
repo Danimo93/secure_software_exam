@@ -1,26 +1,35 @@
 # app/__init__.py
 
-from flask import Flask, jsonify, request, redirect, url_for, render_template
-from app.auth_controller import register, login
+from flask import Flask, render_template
+from app.auth_controller import register_user, login_user, request_password_reset, reset_password
+from app.api_controller import protected_resource
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Define home route
+# Define routes
+
 @app.route('/')
 def home():
-    # You can render a home page or redirect to login or register page
-    return render_template('home.html')  # Make sure home.html exists in the templates folder
+    return render_template('home.html')
 
-# Define routes for registration and login
 @app.route('/register', methods=['GET', 'POST'])
-def register_user():
-    return register()
+def register_user_route():
+    return register_user()
 
 @app.route('/login', methods=['GET', 'POST'])
-def login_user():
-    return login()
+def login_user_route():
+    return login_user()
 
-@app.route('/dashboard')
-def dashboard():
-    return "<h1>Welcome to the dashboard!</h1>"
+@app.route('/request-reset', methods=['GET', 'POST'])
+def request_password_reset_route():
+    return request_password_reset()
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password_route(token):
+    return reset_password(token)
+
+# Move the API route definition here to avoid circular imports
+@app.route('/api/protected', methods=['GET'])
+def protected_resource_route():
+    return protected_resource()
