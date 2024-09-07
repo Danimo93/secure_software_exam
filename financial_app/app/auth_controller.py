@@ -1,53 +1,33 @@
 # app/auth_controller.py
 
-from flask import request, render_template, redirect, flash, url_for
-from app.user_model import User
-import logging
-
-# Setup logging to display in the terminal
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from flask import request, jsonify, g
+from app.models import User
 
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        if not username or not password:
-            flash('Username and password are required', 'danger')
-            return redirect(url_for('register'))
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role', 'user')  # Default to 'user' if no role is provided
 
-        if len(password) < 8:
-            flash('Password must be at least 8 characters long', 'danger')
-            return redirect(url_for('register'))
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
 
-        success = User.create_user(username, password)
-        if success:
-            logging.info(f"User {username} registered successfully")
-            flash('User registered successfully', 'success')
-            return redirect(url_for('login'))
-        else:
-            logging.warning(f"Registration failed for {username}, username already exists")
-            flash('Username already exists', 'danger')
-            return redirect(url_for('register'))
-
-    return render_template('register.html')
+    success = User.create_user(username, password, role)
+    if success:
+        return jsonify({'message': 'User registered successfully'}), 201
+    else:
+        return jsonify({'error': 'Username already exists'}), 400
 
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
 
-        if not username or not password:
-            flash('Username and password are required', 'danger')
-            return redirect(url_for('login'))
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
 
-        if User.verify_user(username, password):
-            logging.info(f"User {username} logged in successfully")
-            flash('Login successful', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            logging.warning(f"Failed login attempt for {username}")
-            flash('Invalid username or password', 'danger')
-            return redirect(url_for('login'))
-
-    return render_template('login.html')
+    if User.verify_user(username, password):
+        token = User.generate_token(username)
+        return jsonify({'message': 'Login successful', 'api_token': token}), 200
+    else:
+        return jsonify({'error': 'Invalid username or password'}), 401
