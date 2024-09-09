@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 from app.models import User
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app  # Assuming app is initialized in app/__init__.py
-# Optional: Flask-Mail integration
-from flask_mail import Message  # If using Flask-Mail (optional)
 
 # User Registration Route
 @app.route('/register', methods=['GET', 'POST'])
@@ -50,27 +48,16 @@ def login_user_view():
 
         # Retrieve user by username
         user = User.find_by_username(username)
-        if user:
-            print(f"User found: {user.username}")
-        else:
-            print(f"User not found: {username}")
-
-        # Check if the password is correct
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
-            # Generate API token (if needed)
-            token = secrets.token_urlsafe(32)
-            token_expiry = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
-            user.update_token(token, token_expiry)
-
             # Log the user in using Flask-Login
             login_user(user)
             flash('Login successful', 'success')
-            print("Login successful")
-            return redirect(url_for('upload_file'))  # Redirect to upload page after login
+
+            # Redirect to the dashboard or another page after login
+            return redirect(url_for('dashboard'))  # Redirect to dashboard or another appropriate page
         else:
             flash('Invalid username or password', 'danger')
-            print("Login failed: Invalid username or password")
-            return redirect(url_for('login_user_view'))  # Redirect back to login page
+            return redirect(url_for('login_user_view'))  # Redirect back to login page on failure
 
     return render_template('login.html')
 
@@ -91,11 +78,6 @@ def request_password_reset():
         reset_token = secrets.token_urlsafe(32)
         token_expiry = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
         user.update_reset_token(reset_token, token_expiry)
-
-        # Optionally send the reset link via email (Flask-Mail)
-        # msg = Message("Password Reset Request", sender="your_email@example.com", recipients=[user.email])
-        # msg.body = f"Hi {user.username}, use the following link to reset your password: {url_for('reset_password', token=reset_token, _external=True)}"
-        # mail.send(msg)
 
         # Debugging: Print the token to the console (replace this with email functionality in production)
         print(f"Password reset token for {user.username}: {reset_token}")

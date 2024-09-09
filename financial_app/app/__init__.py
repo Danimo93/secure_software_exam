@@ -1,5 +1,6 @@
-from flask import Flask, render_template
-from flask_login import LoginManager
+import os
+from flask import Flask, render_template, redirect, url_for, flash
+from flask_login import LoginManager, login_required, logout_user
 from flask_sqlalchemy import SQLAlchemy
 
 # Initialize the database object
@@ -12,6 +13,14 @@ app.secret_key = 'supersecretkey'
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Upload folder settings
+UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the uploads folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Initialize the database with the app
 db.init_app(app)
@@ -32,10 +41,24 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
-# Now import your controllers after app is initialized
+# Dashboard route (new route for choosing between upload and download)
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+# Logout route to log the user out
+@app.route('/logout')
+@login_required
+def logout_route():
+    logout_user()  # This logs out the current user
+    flash('You have been logged out', 'info')
+    return redirect(url_for('login_user_route'))  # Redirects to login page after logout
+
+# Import your controllers after app is initialized
 from app.auth_controller import register_user, login_user_view, request_password_reset, reset_password, logout
 from app.api_controller import protected_resource
-from app.file_controller import upload_file  # Import the upload route
+from app.file_controller import upload_file, list_files, download_selected_file  # Updated import
 
 # Define routes for authentication
 @app.route('/register', methods=['GET', 'POST'])
@@ -45,10 +68,6 @@ def register_user_route():
 @app.route('/login', methods=['GET', 'POST'])
 def login_user_route():
     return login_user_view()
-
-@app.route('/logout', methods=['GET'])
-def logout_route():
-    return logout()
 
 @app.route('/request-reset', methods=['GET', 'POST'])
 def request_password_reset_route():
@@ -65,8 +84,21 @@ def protected_resource_route():
 
 # File upload route
 @app.route('/upload', methods=['GET', 'POST'])  # Define the upload file route
+@login_required
 def upload_file_route():
     return upload_file()
+
+# File listing route (was named download_file before)
+@app.route('/download', methods=['GET'])  # Define the file listing route
+@login_required
+def list_files_route():
+    return list_files()
+
+# File download route for downloading specific files
+@app.route('/download/<filename>', methods=['GET'])
+@login_required
+def download_selected_file_route(filename):
+    return download_selected_file(filename)
 
 # Initialize the app and database context
 with app.app_context():
