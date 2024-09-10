@@ -1,4 +1,4 @@
-# api_controller.py
+# app/api_controller.py
 
 from flask import request, jsonify
 from datetime import datetime
@@ -81,3 +81,4 @@ def clear_token(user_id):
     user.clear_token()
 
     return jsonify({'message': 'Token cleared successfully'}), 200
+

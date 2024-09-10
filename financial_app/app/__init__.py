@@ -1,33 +1,59 @@
+# app/__init__.py
+
 import os
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_required, logout_user
 from flask_sqlalchemy import SQLAlchemy
 
+# Initialize SQLAlchemy (no app binding yet)
 db = SQLAlchemy()
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# Set the database URI with an absolute path to ensure it points to the database/ directory outside app/
+project_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+db_path = os.path.join(project_dir, 'database', 'users.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
+# Print the database URI to verify it's correct
+print("Database URI:", app.config['SQLALCHEMY_DATABASE_URI'])
+
+# Ensure the 'database' directory exists outside the app directory
+db_folder = os.path.join(project_dir, 'database')
+if not os.path.exists(db_folder):
+    os.makedirs(db_folder)
+
+# Initialize SQLAlchemy with the app (this ensures the app is registered with SQLAlchemy)
+db.init_app(app)
+
+# Check if the database file exists; otherwise, create one using db.create_all()
+with app.app_context():
+    if not os.path.exists(db_path):
+        print("Database file not found, creating the database...")
+        db.create_all()
+        print("Database created!")
+
+# Ensure the upload folder exists inside the 'app' directory
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+    print(f"Created uploads folder at: {UPLOAD_FOLDER}")
 
-db.init_app(app)
-
+# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login_user_route'  
+login_manager.login_view = 'login_user_route'
 
 @login_manager.user_loader
 def load_user(user_id):
     from app.models import User
     return User.find_by_id(user_id)
 
+# Define routes
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -42,11 +68,12 @@ def dashboard():
 def logout_route():
     logout_user()  
     flash('You have been logged out', 'info')
-    return redirect(url_for('login_user_route')) 
+    return redirect(url_for('login_user_route'))
 
+# Import routes from controllers
 from app.auth_controller import register_user, login_user_view, request_password_reset, reset_password, logout
 from app.api_controller import protected_resource
-from app.file_controller import upload_file, list_files, download_selected_file  # Updated import
+from app.file_controller import upload_file, list_files, download_selected_file
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user_route():
@@ -83,5 +110,6 @@ def list_files_route():
 def download_selected_file_route(filename):
     return download_selected_file(filename)
 
+# Create all database tables if they don't exist
 with app.app_context():
-    db.create_all()  
+    db.create_all()

@@ -1,3 +1,5 @@
+# app/auth_controller.py
+
 import secrets
 import bcrypt
 from flask import request, jsonify, redirect, flash, render_template, url_for
