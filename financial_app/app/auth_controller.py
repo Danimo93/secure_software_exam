@@ -75,7 +75,8 @@ def reset_password(token):
     user = User.find_by_reset_token(token)
     print(f"Reset token checked for validity: {token}")  # Debugging
 
-    if not user or user.token_expiry < datetime.now(timezone.utc):  # Updated to use timezone-aware datetime
+    # Ensure user.token_expiry is timezone-aware before comparison
+    if not user or (user.token_expiry.replace(tzinfo=timezone.utc) if user.token_expiry.tzinfo is None else user.token_expiry) < datetime.now(timezone.utc):
         flash('Invalid or expired token', 'danger')
         return redirect(url_for('request_password_reset'))
 
