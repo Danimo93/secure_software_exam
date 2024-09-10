@@ -1,122 +1,99 @@
 import secrets
 import bcrypt
 from flask import request, jsonify, redirect, flash, render_template, url_for
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models import User
 from flask_login import login_user, login_required, logout_user, current_user
-from app import app  # Assuming app is initialized in app/__init__.py
+from app import app
 
-# User Registration Route
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        email = request.form.get('email')
-
-        # Debugging: Log received form data
-        print(f"Register attempt with username: {username}, email: {email}")
-
-        # Hash the password using bcrypt
+        print(f"Register attempt with username: {username}")
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
+        success = User.create_user(username, password_hash)
 
-        # Create a new user in the database
-        success = User.create_user(username, email, password_hash)
-        
         if success:
             flash('User registered successfully', 'success')
             print("Registration successful!")
-            return redirect(url_for('login_user_view'))  # Redirect to login page
+            return redirect(url_for('login_user_view'))
         else:
-            flash('Username or email already exists', 'danger')
-            print("Registration failed: Username or email already exists")
-            return redirect(url_for('register_user'))  # Stay on the registration page
-
+            flash('Username already exists', 'danger')
+            print("Registration failed: Username already exists")
+            return redirect(url_for('register_user'))
     return render_template('register.html')
 
-
-# User Login Route
 @app.route('/login', methods=['GET', 'POST'])
 def login_user_view():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
-        # Debugging: Log received form data
         print(f"Login attempt with username: {username}")
 
-        # Retrieve user by username
         user = User.find_by_username(username)
+        print(f"User found: {user}")  # Debugging
+
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
-            # Log the user in using Flask-Login
             login_user(user)
             flash('Login successful', 'success')
-
-            # Redirect to the dashboard or another page after login
-            return redirect(url_for('dashboard'))  # Redirect to dashboard or another appropriate page
+            return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'danger')
-            return redirect(url_for('login_user_view'))  # Redirect back to login page on failure
-
+            return redirect(url_for('login_user_view'))
     return render_template('login.html')
 
 
-# Request Password Reset Route
 @app.route('/request_password_reset', methods=['GET', 'POST'])
 def request_password_reset():
     if request.method == 'POST':
-        email_or_username = request.form.get('email')
+        username = request.form.get('username')
 
-        # Find user by email or username
-        user = User.find_by_email_or_username(email_or_username)
+        user = User.find_by_username_for_reset(username)
         if not user:
             flash('User not found', 'danger')
             return redirect(url_for('request_password_reset'))
 
-        # Generate a secure reset token
         reset_token = secrets.token_urlsafe(32)
-        token_expiry = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+        print(f"Reset token generated: {reset_token}")  # Debugging
+
+        token_expiry = datetime.now(timezone.utc) + timedelta(hours=1)  # Updated to use timezone-aware datetime
         user.update_reset_token(reset_token, token_expiry)
 
-        # Debugging: Print the token to the console (replace this with email functionality in production)
-        print(f"Password reset token for {user.username}: {reset_token}")
+        flash('Password reset link generated. Redirecting...', 'info')
 
-        flash('Password reset link has been sent to your email', 'info')
-        return redirect(url_for('login_user_view'))  # Redirect to login after request
+        return redirect(url_for('reset_password', token=reset_token))
 
     return render_template('request_reset.html')
 
-
-# Password Reset Route
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     user = User.find_by_reset_token(token)
-    if not user or user.token_expiry < datetime.utcnow():
+    print(f"Reset token checked for validity: {token}")  # Debugging
+
+    if not user or user.token_expiry < datetime.now(timezone.utc):  # Updated to use timezone-aware datetime
         flash('Invalid or expired token', 'danger')
         return redirect(url_for('request_password_reset'))
 
     if request.method == 'POST':
         password = request.form.get('password')
 
-        # Hash the new password using bcrypt
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
 
-        # Update user's password and clear the reset token
         user.update_password(password_hash)
         user.clear_reset_token()
 
         flash('Password reset successfully', 'success')
-        return redirect(url_for('login_user_view'))  # Redirect to login page after reset
+        return redirect(url_for('login_user_view'))
 
     return render_template('reset_password.html', token=token)
 
-
-# User Logout Route
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out', 'info')
-    return redirect(url_for('login_user_view'))  # Redirect to login page after logout
+    return redirect(url_for('login_user_view'))
