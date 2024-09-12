@@ -1,11 +1,9 @@
 # app/api_controller.py
 
 from flask import request, jsonify
-from datetime import datetime, timedelta
+from datetime import datetime
 from app.models import User
-from app import db, app
-import secrets
-# from flask_login import login_required  # Commented out for testing purposes
+from app import db
 
 def protected_resource():
     """
@@ -60,8 +58,8 @@ def update_token(user_id):
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    token = secrets.token_hex(16)  # Generate a secure token
-    expiry_time = datetime.utcnow() + timedelta(hours=1)  # Set token expiry to 1 hour from now
+    token = secrets.token_hex(16)
+    expiry_time = datetime.utcnow() + timedelta(hours=1)
     user.update_token(token, expiry_time)
 
     return jsonify({
@@ -83,11 +81,3 @@ def clear_token(user_id):
     user.clear_token()
 
     return jsonify({'message': 'Token cleared successfully'}), 200
-
-
-# New route for updating API tokens
-@app.route('/update-token/<int:user_id>', methods=['POST'])
-# @login_required  # Commented out for testing purposes
-def update_token_route(user_id):
-    return update_token(user_id)
-
