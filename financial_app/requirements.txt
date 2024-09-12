@@ -2,16 +2,11 @@ tinyec
 pycryptodome
 cryptography
 bcrypt
-Crypto
 Fernet
 rsa
 requests
 werkzeug
-mysql-connector-python
-pymysql
 python-dotenv
-fastapi
-uvicorn
 Flask
 Flask-SQLAlchemy
 Flask-Bcrypt
