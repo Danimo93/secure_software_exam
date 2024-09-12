@@ -11,7 +11,7 @@ db = SQLAlchemy()
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Set the database URI with an absolute path to ensure it points to the database/ directory outside app/
+# Database creation
 project_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 db_path = os.path.join(project_dir, 'database', 'users.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'

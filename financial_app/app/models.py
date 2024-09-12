@@ -45,7 +45,6 @@ class User(db.Model):
 
     @staticmethod
     def find_by_id(user_id):
-        # Updated to use Session.get() as per SQLAlchemy 2.0 standards
         return db.session.get(User, user_id)
 
     def update_token(self, token, expiry_time):
@@ -86,7 +85,6 @@ class File(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     filepath = db.Column(db.String(255), nullable=False)
-    # Updated to use timezone-aware datetime
     uploaded_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     @staticmethod
