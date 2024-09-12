@@ -67,7 +67,7 @@ def dashboard():
 @login_required
 def logout_route():
     logout_user()  
-    flash('You have been logged out', 'info')
+    flash('Logged out', 'info')
     return redirect(url_for('login_user_route'))
 
 # Import routes from controllers

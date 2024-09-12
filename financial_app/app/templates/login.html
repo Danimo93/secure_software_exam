@@ -108,18 +108,25 @@
             padding: 10px;
             border-radius: 5px;
             font-size: 1.1rem;
+            border: 1px solid transparent; /* Default border style */
         }
 
         .flash-message.success {
             color: green;
             background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+            border-color: #c3e6cb; /* Success message border */
         }
 
         .flash-message.danger {
             color: red;
             background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
+            border-color: #f5c6cb; /* Danger message border */
+        }
+
+        .flash-message.info {
+            color: blue;
+            background-color: #d1ecf1;
+            border-color: #bee5eb; /* Info message border */
         }
     </style>
 </head>
@@ -152,7 +159,6 @@
         <!-- Forgot Password link -->
         <div class="forgot-password">
             <a href="{{ url_for('request_password_reset') }}">Forgot Password?</a>
-
         </div>
     </div>
 </body>

@@ -83,16 +83,16 @@ def download_selected_file(filename):
 @login_required
 def delete_file(filename):
     try:
-        # Sanitize the filename
-        safe_filename = werkzeug.utils.secure_filename(filename)
+        # Use secure_filename directly since it's already imported
+        safe_filename = secure_filename(filename)
         
         # Look for the file in the database belonging to the current user
         file_record = File.query.filter_by(filename=safe_filename, user_id=current_user.id).first()
         
         if file_record:
-            # Construct the file path securely
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
-            
+            print(f"Attempting to delete: {file_path}")  # Add this line to check the file path
+
             # Verify the file is within the designated directory
             if os.path.commonpath([file_path, app.config['UPLOAD_FOLDER']]) != app.config['UPLOAD_FOLDER']:
                 flash('Invalid file path.', 'danger')
@@ -106,10 +106,14 @@ def delete_file(filename):
 
                 flash(f'File "{safe_filename}" has been deleted successfully.', 'success')
             else:
+                print(f"File not found at path: {file_path}")  # Debugging for file not found
                 flash(f'File "{safe_filename}" not found on the server.', 'danger')
         else:
+            print(f"File record not found in the database for: {safe_filename}")  # Debugging for database issue
             flash(f'File "{safe_filename}" not found in the database.', 'danger')
     except Exception as e:
+        print(f"Error deleting file: {str(e)}")  # Log the error message
         flash(f'Error deleting file: {str(e)}', 'danger')
     
     return redirect(url_for('list_files'))
+
