@@ -79,7 +79,6 @@ class User(db.Model):
         self.token_expiry = None
         db.session.commit()
 
-
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

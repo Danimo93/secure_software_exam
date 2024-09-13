@@ -23,31 +23,28 @@ def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'danger')
-            return redirect(url_for('upload_file'))  # Redirect to a safe known route
-
+            return redirect(url_for('upload_file')) 
         file = request.files['file']
 
         if file.filename == '':
             flash('No selected file', 'danger')
-            return redirect(url_for('upload_file'))  # Redirect to a safe known route
-
+            return redirect(url_for('upload_file')) 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
             try:
                 file.save(filepath)
                 new_file = File(user_id=current_user.id, filename=filename, filepath=filepath)
                 db.session.add(new_file)
                 db.session.commit()
                 flash('File uploaded successfully', 'success')
-                return redirect(url_for('upload_file'))  # Redirect to a safe known route
+                return redirect(url_for('upload_file'))
             except Exception as e:
                 flash(f'Error saving file: {str(e)}', 'danger')
-                return redirect(url_for('upload_file'))  # Redirect to a safe known route
+                return redirect(url_for('upload_file'))
         else:
             flash('File type not allowed', 'danger')
-            return redirect(url_for('upload_file'))  # Redirect to a safe known route
+            return redirect(url_for('upload_file'))
 
     return render_template('upload.html')
 
@@ -83,37 +80,27 @@ def download_selected_file(filename):
 @login_required
 def delete_file(filename):
     try:
-        # Use secure_filename directly since it's already imported
         safe_filename = secure_filename(filename)
-        
-        # Look for the file in the database belonging to the current user
         file_record = File.query.filter_by(filename=safe_filename, user_id=current_user.id).first()
-        
         if file_record:
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
-            print(f"Attempting to delete: {file_path}")  # Add this line to check the file path
-
-            # Verify the file is within the designated directory
+            print(f"Attempting to delete: {file_path}")
             if os.path.commonpath([file_path, app.config['UPLOAD_FOLDER']]) != app.config['UPLOAD_FOLDER']:
                 flash('Invalid file path.', 'danger')
                 return redirect(url_for('list_files'))
-            
-            # Check if the file exists and remove it
             if os.path.exists(file_path):
                 os.remove(file_path)
                 db.session.delete(file_record)
                 db.session.commit()
-
                 flash(f'File "{safe_filename}" has been deleted successfully.', 'success')
             else:
-                print(f"File not found at path: {file_path}")  # Debugging for file not found
+                print(f"File not found at path: {file_path}")
                 flash(f'File "{safe_filename}" not found on the server.', 'danger')
         else:
-            print(f"File record not found in the database for: {safe_filename}")  # Debugging for database issue
+            print(f"File record not found in the database for: {safe_filename}")
             flash(f'File "{safe_filename}" not found in the database.', 'danger')
     except Exception as e:
-        print(f"Error deleting file: {str(e)}")  # Log the error message
+        print(f"Error deleting file: {str(e)}")
         flash(f'Error deleting file: {str(e)}', 'danger')
-    
     return redirect(url_for('list_files'))
 
