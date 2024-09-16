@@ -1,10 +1,8 @@
-# app/__init__.py
-
 import os
 from flask import Flask, render_template, redirect, url_for, flash
+from markupsafe import escape
 from flask_login import LoginManager, login_required, logout_user
 from flask_sqlalchemy import SQLAlchemy
-
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -77,7 +75,6 @@ def login_user_route():
 def request_password_reset_route():
     return request_password_reset()
 
-
 @app.route('/api/protected', methods=['GET'])
 def protected_resource_route():
     return protected_resource()
@@ -94,12 +91,14 @@ def list_files_route():
     
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password_route(token):
-    return reset_password(token)
+    sanitized_token = escape(token)
+    return reset_password(sanitized_token)
 
 @app.route('/download/<filename>', methods=['GET'])
 @login_required
 def download_selected_file_route(filename):
-    return download_selected_file(filename)
+    sanitized_filename = escape(filename)
+    return download_selected_file(sanitized_filename)
 
 with app.app_context():
     db.create_all()
