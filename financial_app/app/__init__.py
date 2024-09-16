@@ -77,9 +77,6 @@ def login_user_route():
 def request_password_reset_route():
     return request_password_reset()
 
-@app.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password_route(token):
-    return reset_password(token)
 
 @app.route('/api/protected', methods=['GET'])
 def protected_resource_route():
@@ -94,6 +91,10 @@ def upload_file_route():
 @login_required
 def list_files_route():
     return list_files()
+    
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password_route(token):
+    return reset_password(token)
 
 @app.route('/download/<filename>', methods=['GET'])
 @login_required
