@@ -13,13 +13,13 @@ def register_user():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        print(f"Register attempt with username: {username}")
+        print(f"Register attempt username: {username}")
         salt = bcrypt.gensalt()
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
         success = User.create_user(username, password_hash)
         if success:
-            flash('User registered successfully', 'success')
-            print("Registration successful!")
+            flash('User registered', 'success')
+            print("Registration success!")
             return redirect(url_for('login_user_view'))
         else:
             flash('Username already exists', 'danger')
@@ -33,13 +33,13 @@ def login_user_view():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        print(f"Login attempt with username: {username}")
+        print(f"Login attempt username: {username}")
         user = User.find_by_username(username)
 
         print(f"User found: {user}")
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
             login_user(user)
-            flash('Login successful', 'success')
+            flash('Login success', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'danger')
@@ -61,14 +61,14 @@ def request_password_reset():
         
         token_expiry = datetime.now(timezone.utc) + timedelta(hours=1)
         user.update_reset_token(reset_token, token_expiry)
-        flash('Password reset link generated. Redirecting...', 'info')
+        flash('Password reset.', 'info')
         return redirect(url_for('reset_password', token=reset_token))
     return render_template('request_reset.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     user = User.find_by_reset_token(token)
-    print(f"Reset token checked for validity: {token}")
+    print(f"Reset token: {token}")
 
     if not user or (user.token_expiry.replace(tzinfo=timezone.utc) if user.token_expiry.tzinfo is None else user.token_expiry) < datetime.now(timezone.utc):
         flash('Invalid or expired token', 'danger')
@@ -80,7 +80,7 @@ def reset_password(token):
         password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
         user.update_password(password_hash)
         user.clear_reset_token()
-        flash('Password reset successfully', 'success')
+        flash('Password reset success', 'success')
         return redirect(url_for('login_user_view'))
     return render_template('reset_password.html', token=token)
 
@@ -88,5 +88,5 @@ def reset_password(token):
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out', 'info')
+    flash('Logged out', 'info')
     return redirect(url_for('login_user_view'))
