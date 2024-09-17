@@ -4,12 +4,12 @@ cryptography
 bcrypt
 Fernet
 rsa
-requests
-werkzeug
-python-dotenv
 Flask
 Flask-SQLAlchemy
 Flask-Bcrypt
 Flask-JWT-Extended
 flask-login
 flask-sqlalchemy
+werkzeug
+requests
+python-dotenv
