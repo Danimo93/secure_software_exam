@@ -18,7 +18,6 @@ def protected_resource():
         return jsonify({'error': 'Token has expired'}), 403
     return jsonify({'message': 'You have accessed a protected resource'}), 200
 
-
 def get_user_info():
     token = request.headers.get('Authorization')
     if not token:
@@ -33,7 +32,6 @@ def get_user_info():
         'message': 'User information retrieved successfully'
     }), 200
 
-
 def update_token(user_id):
     user = User.find_by_id(user_id)
     if not user:
@@ -46,7 +44,6 @@ def update_token(user_id):
         'api_token': token,
         'expiry_time': expiry_time.isoformat()
     }), 200
-
 
 def clear_token(user_id):
     user = User.find_by_id(user_id)

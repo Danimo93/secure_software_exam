@@ -1,3 +1,4 @@
+# app/file_controller.py
 import os
 from flask import request, redirect, flash, render_template, url_for, send_file, send_from_directory
 from werkzeug.utils import secure_filename
@@ -20,14 +21,17 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def encrypt_file(file_content):
+    """Encrypt file content."""
     return cipher.encrypt(file_content)
 
 def decrypt_file(file_content):
+    """Decrypt file content."""
     return cipher.decrypt(file_content)
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload_file():
+    """Handle file upload."""
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part in the request.', 'danger')
@@ -65,6 +69,7 @@ def upload_file():
 @app.route('/download', methods=['GET'])
 @login_required
 def list_files():
+    """List all files for the current user."""
     try:
         files = File.query.filter_by(user_id=current_user.id).all()
         return render_template('download.html', files=files)
