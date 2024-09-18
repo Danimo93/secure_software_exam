@@ -12,6 +12,8 @@ class User(db.Model):
     api_token_expiry = db.Column(db.DateTime, nullable=True)
     reset_token = db.Column(db.String(200), nullable=True)
     token_expiry = db.Column(db.DateTime, nullable=True)
+    two_factor_code = db.Column(db.String(50), nullable=True)  # Two-factor code
+    two_factor_expiry = db.Column(db.DateTime, nullable=True)  # Expiry for 2FA
 
     @property
     def is_authenticated(self):
@@ -77,6 +79,16 @@ class User(db.Model):
     def clear_reset_token(self):
         self.reset_token = None
         self.token_expiry = None
+        db.session.commit()
+
+    def set_two_factor_code(self, code, expiry_time):
+        self.two_factor_code = code
+        self.two_factor_expiry = expiry_time
+        db.session.commit()
+
+    def clear_two_factor_code(self):
+        self.two_factor_code = None
+        self.two_factor_expiry = None
         db.session.commit()
 
 class File(db.Model):

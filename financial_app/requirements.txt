@@ -10,6 +10,7 @@ Flask-Bcrypt
 Flask-JWT-Extended
 flask-login
 flask-sqlalchemy
+Flask-Migrate
 werkzeug
 requests
 python-dotenv
