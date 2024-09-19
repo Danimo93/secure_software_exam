@@ -12,7 +12,7 @@ encryption_key = Fernet.generate_key()
 cipher = Fernet(encryption_key)
 
 UPLOAD_FOLDER = os.path.join(app.config['UPLOAD_FOLDER'])
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'php', 'py'}
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)

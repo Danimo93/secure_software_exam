@@ -1,23 +1,20 @@
 
-# Short Description
+# How to Run the Code
 
-This project is designed to [provide a brief overview of your project's purpose and functionality].
-
-## How to Run the Code
-
-1. Activate my virtual environment in that directory:  
+1. Activate "myenv virtual environment" in the directory:  
    ```source myenv/bin/activate```
 
-2. Make sure my required libraries are install:  
+2. Make sure my required libraries are installed:  
    ```pip install -r requirements.txt```
 
 3. Ensure everything is set up correctly before running the application.
 
 4. Run the main program:  
    ```python3 main.py```
-   
-5. For login or password reset, two-factor authentication is enabled.  
-The authentication code will be provided in the log info in terminal.
+
+5. For login or password reset, two-factor authentication is enabled. 
+The authentication key will be provided in the log info in the terminal. 
+The two factor authentication key has to be copied into the field for the Authentication Key. 
 
 
-<img src="two_factor.png" alt="Project screenshot" width="350"/>
+<img src="two_factor.png" alt="Project screenshot" width="480"/>

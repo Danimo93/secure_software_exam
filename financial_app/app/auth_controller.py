@@ -35,7 +35,7 @@ def login_user_view():
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
             two_factor_code = secrets.token_hex(4)
-            print(f"\n---- Two-Factor Authentication ----\n\nCode For {username}: {two_factor_code}\n------------")
+            print(f"\n---- Two-Factor Authentication ----\nKey For {username}: {two_factor_code}\n------------")
 
             code_expiry = datetime.now(timezone.utc) + timedelta(minutes=10)
             user.set_two_factor_code(two_factor_code, code_expiry)
@@ -90,7 +90,7 @@ def request_password_reset():
             return redirect(url_for('request_password_reset'))
 
         two_factor_code = secrets.token_hex(4)
-        print(f"\n---- Two-Factor Authentication ----\n\nCode For {username}: {two_factor_code}\n------------")
+        print(f"\n---- Two-Factor Authentication ----\nKey For {username}: {two_factor_code}\n------------")
         code_expiry = datetime.now(timezone.utc) + timedelta(minutes=10)
         user.set_two_factor_code(two_factor_code, code_expiry)
 
