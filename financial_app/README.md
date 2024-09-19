@@ -5,7 +5,7 @@
    ```source myenv/bin/activate```
 
 2. Make sure my required libraries are installed:  
-   ```pip install -r requirements.txt```
+   ```pip3 install -r requirements.txt```
 
 3. Ensure everything is set up correctly before running the application.
 
