@@ -1,4 +1,3 @@
-<!-- app/templates/download.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,28 +7,38 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f4f8;
+            background-color: #eef2f7;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            text-align: center;
+
+        .file-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
             width: 100%;
-            max-width: 600px;
+            text-align: center;
         }
+
         .header-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 30px;
         }
+
+        .centered-header {
+            flex-grow: 1;
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+        }
+
         .back-button {
             background-color: #6c757d;
             color: white;
@@ -41,74 +50,111 @@
             transition: background-color 0.3s ease;
             margin-right: 10px;
         }
+
         .back-button:hover {
             background-color: #5a6268;
         }
-        h1 {
-            flex-grow: 1;
-            font-size: 2.5rem;
-            color: #333;
-            text-align: center;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
+
+        .file-category {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
+        }
+
+        .file-section {
+            width: 30%; /* Adjusts section width to fit horizontally */
+        }
+
+        .file-section h3 {
             font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: left;
+            color: #333;
         }
-        a {
-            text-decoration: none;
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .file-item a {
             color: #007bff;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .btn-delete {
-            background-color: #ff4c4c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
+            text-decoration: none;
             font-size: 1rem;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border: none;
             border-radius: 6px;
+            font-size: 1rem;
             cursor: pointer;
-            margin-left: 10px;
             transition: background-color 0.3s ease;
         }
-        .btn-delete:hover {
-            background-color: #ff3333;
-        }
-        .no-files {
-            font-size: 1.3rem;
-            color: #777;
-            margin-top: 20px;
+
+        .delete-button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <div class="file-container">
         <div class="header-container">
             <form action="{{ url_for('dashboard') }}" method="GET">
                 <button type="submit" class="back-button">Back</button>
             </form>
-            <h1>Your Files</h1>
+            <h1 class="centered-header">Your Files</h1>
         </div>
 
-        {% if files %}
-        <ul>
-            {% for file in files %}
-                <li>
+        <div class="file-category">
+            {% if documents %}
+            <div class="file-section">
+                <h3>Documents</h3>
+                {% for file in documents %}
+                <div class="file-item">
                     <a href="{{ url_for('download_selected_file', filename=file.filename) }}">{{ file.filename }}</a>
                     <form action="{{ url_for('delete_file', filename=file.filename) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn-delete">Delete</button>
+                        <button type="submit" class="delete-button">Delete</button>
                     </form>
-                </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="no-files">No files available for download.</p>
-        {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if excel_files %}
+            <div class="file-section">
+                <h3>Excel</h3>
+                {% for file in excel_files %}
+                <div class="file-item">
+                    <a href="{{ url_for('download_selected_file', filename=file.filename) }}">{{ file.filename }}</a>
+                    <form action="{{ url_for('delete_file', filename=file.filename) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if others %}
+            <div class="file-section">
+                <h3>Others</h3>
+                {% for file in others %}
+                <div class="file-item">
+                    <a href="{{ url_for('download_selected_file', filename=file.filename) }}">{{ file.filename }}</a>
+                    <form action="{{ url_for('delete_file', filename=file.filename) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
     </div>
+
 </body>
 </html>

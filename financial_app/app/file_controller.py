@@ -12,7 +12,7 @@ encryption_key = Fernet.generate_key()
 cipher = Fernet(encryption_key)
 
 UPLOAD_FOLDER = os.path.join(app.config['UPLOAD_FOLDER'])
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'php', 'py'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'xls', 'xlsx', 'doc', 'docx'}
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -69,10 +69,14 @@ def upload_file():
 @app.route('/download', methods=['GET'])
 @login_required
 def list_files():
-    """List all files for the current user."""
+    """List all files for the current user, grouped by type."""
     try:
         files = File.query.filter_by(user_id=current_user.id).all()
-        return render_template('download.html', files=files)
+        documents = [file for file in files if file.filename.endswith(('.doc', '.docx'))]
+        excel_files = [file for file in files if file.filename.endswith(('.xls', '.xlsx'))]
+        others = [file for file in files if not file.filename.endswith(('.doc', '.docx', '.xls', '.xlsx'))]
+
+        return render_template('download.html', documents=documents, excel_files=excel_files, others=others)
     except Exception as e:
         flash(f'Error retrieving files: {str(e)}', 'danger')
         return redirect(url_for('upload_file_route'))
