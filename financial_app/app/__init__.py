@@ -10,7 +10,7 @@ db = SQLAlchemy()
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 
-# Define the project directory and database path
+# database path
 project_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 db_path = os.path.join(project_dir, 'database', 'users.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 print("Database URI:", app.config['SQLALCHEMY_DATABASE_URI'])
 
-# Ensure database folder exists
+# database folder exists
 db_folder = os.path.join(project_dir, 'database')
 if not os.path.exists(db_folder):
     os.makedirs(db_folder)
@@ -31,7 +31,7 @@ with app.app_context():
         db.create_all()
         print("Database created!")
 
-# Configure the upload folder
+# upload folder
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -39,18 +39,17 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
     print(f"Created uploads folder at: {UPLOAD_FOLDER}")
 
-# Set up Flask-Login
+# Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login_user_route'
 
-# Load user function for Flask-Login
+# Load user Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     from app.models import User
     return User.find_by_id(user_id)
 
-# Define routes for the app
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -67,7 +66,6 @@ def logout_route():
     flash('Logged out', 'info')
     return redirect(url_for('login_user_route'))
 
-# Import controllers for routes
 from app.auth_controller import (
     register_user, login_user_view, request_password_reset,
     reset_password, logout, verify_two_factor
@@ -75,7 +73,6 @@ from app.auth_controller import (
 from app.api_controller import protected_resource
 from app.file_controller import upload_file, list_files, download_selected_file
 
-# Register the routes from the controllers
 @app.route('/register', methods=['GET', 'POST'])
 def register_user_route():
     return register_user()

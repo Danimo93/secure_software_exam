@@ -1,8 +1,7 @@
-# app/models.py
-
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from app import db
+import bcrypt
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,8 +11,8 @@ class User(db.Model):
     api_token_expiry = db.Column(db.DateTime, nullable=True)
     reset_token = db.Column(db.String(200), nullable=True)
     token_expiry = db.Column(db.DateTime, nullable=True)
-    two_factor_code = db.Column(db.String(50), nullable=True)  # Two-factor code
-    two_factor_expiry = db.Column(db.DateTime, nullable=True)  # Expiry for 2FA
+    two_factor_code = db.Column(db.String(50), nullable=True)
+    two_factor_expiry = db.Column(db.DateTime, nullable=True)
 
     @property
     def is_authenticated(self):
@@ -31,8 +30,10 @@ class User(db.Model):
         return str(self.id)
 
     @staticmethod
-    def create_user(username, password_hash):
+    def create_user(username, password):
         try:
+            salt = bcrypt.gensalt()
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode()
             new_user = User(username=username, password_hash=password_hash)
             db.session.add(new_user)
             db.session.commit()
@@ -59,8 +60,10 @@ class User(db.Model):
         self.api_token_expiry = None
         db.session.commit()
 
-    def update_password(self, new_password_hash):
-        self.password_hash = new_password_hash
+    def update_password(self, new_password):
+        salt = bcrypt.gensalt()
+        password_hash = bcrypt.hashpw(new_password.encode('utf-8'), salt).decode()
+        self.password_hash = password_hash
         db.session.commit()
 
     @staticmethod

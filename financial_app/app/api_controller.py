@@ -45,6 +45,7 @@ def update_token(user_id):
         'expiry_time': expiry_time.isoformat()
     }), 200
 
+
 def clear_token(user_id):
     user = User.find_by_id(user_id)
     if not user:

@@ -4,6 +4,7 @@ cryptography
 bcrypt
 Fernet
 rsa
+flask-talisman
 Flask
 Flask-SQLAlchemy
 Flask-Bcrypt

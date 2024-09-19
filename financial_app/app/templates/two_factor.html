@@ -1,5 +1,5 @@
 <!-- app/templates/two_factor.html -->
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +68,7 @@
         <p>A two-factor authentication code has been generated. Please enter it below.</p>
         <form action="{{ url_for('verify_two_factor_route') }}" method="POST">
             <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="flow_type" value="{{ flow_type }}">
             <label for="two_factor_code">Authentication Code:</label>
             <input type="text" id="two_factor_code" name="two_factor_code" required placeholder="Enter the code">
             <button type="submit">Verify</button>
